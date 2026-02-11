@@ -521,20 +521,46 @@
   }
 
   .result-card {
-    background: white;
+    background: linear-gradient(170deg, #FFF8FA 0%, #FFE8F0 50%, #FFD6E8 100%);
     border: 5px solid var(--dark);
-    border-radius: 30px;
-    padding: 45px 50px;
+    border-radius: 36px;
+    padding: 40px 40px 35px;
     text-align: center;
     box-shadow: 0 10px 0 var(--dark), 0 20px 60px rgba(0,0,0,0.15);
-    max-width: 420px;
-    width: 90vw;
+    max-width: 380px;
+    width: 88vw;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .result-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at 10% 90%, rgba(255,126,179,0.15) 0%, transparent 30%),
+      radial-gradient(circle at 90% 10%, rgba(255,209,102,0.12) 0%, transparent 30%);
+    pointer-events: none;
+  }
+
+  .result-card > * { position: relative; z-index: 1; }
+
+  .result-header-tag {
+    display: inline-block;
+    background: var(--accent);
+    color: white;
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 4px 16px;
+    border-radius: 50px;
+    margin-bottom: 8px;
+    letter-spacing: 1px;
   }
 
   .result-emoji {
-    font-size: 5rem;
+    font-size: 4.5rem;
     display: block;
-    margin-bottom: 10px;
+    margin-bottom: 6px;
     animation: hamsterBounce 1.5s ease-in-out infinite;
   }
 
@@ -543,14 +569,39 @@
     font-weight: 700;
     font-size: 2.2rem;
     color: var(--dark);
-    margin-bottom: 6px;
+    margin-bottom: 4px;
+  }
+
+  .result-score-big {
+    font-family: 'Gaegu', cursive;
+    font-size: 4rem;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+    margin: 8px 0 2px;
+    text-shadow: 0 3px 0 rgba(255,79,154,0.2);
+  }
+
+  .result-score-label {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--dark);
+    opacity: 0.6;
+    margin-bottom: 12px;
+  }
+
+  .result-player-name {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--dark);
+    margin-bottom: 10px;
   }
 
   .result-stats {
     font-size: 1.3rem;
     color: var(--dark);
     font-weight: 700;
-    margin: 14px 0 8px;
+    margin: 10px 0 8px;
     line-height: 1.8;
   }
 
@@ -559,6 +610,15 @@
     color: var(--primary);
     font-weight: 700;
     margin-bottom: 14px;
+  }
+
+  .result-footer {
+    font-size: 0.8rem;
+    color: var(--secondary);
+    font-weight: 700;
+    margin-top: 10px;
+    opacity: 0.7;
+    letter-spacing: 0.5px;
   }
 
   .rank-badge {
@@ -622,6 +682,83 @@
     padding: 8px 14px !important;
   }
   .music-hud:hover { transform: scale(1.1); }
+
+  .stage-badge {
+    background: var(--accent) !important;
+    color: white !important;
+    border-color: var(--dark) !important;
+  }
+
+  /* 스테이지 전환 오버레이 */
+  .stage-overlay {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 55;
+    background: rgba(255,246,249,0.85);
+    backdrop-filter: blur(6px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s;
+  }
+
+  .stage-overlay.show { opacity: 1; pointer-events: all; }
+
+  .stage-announce {
+    font-family: 'Gaegu', cursive;
+    font-weight: 700;
+    font-size: 3.5rem;
+    color: var(--dark);
+    text-shadow: 0 4px 0 rgba(255,79,154,0.25);
+    animation: countPop 0.6s ease-out;
+  }
+
+  .stage-sub {
+    font-family: 'Gaegu', cursive;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--accent);
+    margin-top: 8px;
+  }
+
+  /* 대왕 햄스터 보스 */
+  .boss-target {
+    filter: drop-shadow(0 0 20px rgba(255,215,0,0.6)) drop-shadow(0 6px 12px rgba(0,0,0,0.2));
+    animation: bossPulse 0.4s ease-in-out infinite;
+  }
+
+  @keyframes bossPulse {
+    0%, 100% { transform: scale(1) rotate(-2deg); }
+    50% { transform: scale(1.08) rotate(2deg); }
+  }
+
+  .boss-hp-bar {
+    position: absolute;
+    bottom: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 8px;
+    background: rgba(0,0,0,0.15);
+    border-radius: 10px;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .boss-hp-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #FF4F9A, #FF9A5C);
+    border-radius: 10px;
+    transition: width 0.15s;
+  }
+
+  /* 거대 강아지 (3단계) */
+  .giant-dog {
+    filter: drop-shadow(0 0 25px rgba(255,23,68,0.5)) drop-shadow(0 8px 16px rgba(0,0,0,0.25));
+  }
 
   .music-toggle-row {
     margin: 10px 0 4px;
@@ -776,6 +913,11 @@
     <div class="guide-card-title">📖 게임 가이드</div>
     <div class="guide-items">
       <div class="guide-item-row">
+        <span class="guide-icon">🎮</span>
+        <span class="guide-text">총 <strong>3단계!</strong> 단계마다 점수 누적!</span>
+      </div>
+      <div class="guide-divider"></div>
+      <div class="guide-item-row">
         <span class="guide-icon">🐹🧀</span>
         <span class="guide-text">햄스터와 치즈를 많이 잡을수록 높은 점수!</span>
       </div>
@@ -789,6 +931,11 @@
         <span class="guide-icon">🐶</span>
         <span class="guide-text">강아지를 잡으면 햄스터가 다 도망가요 <strong>ㄷ.ㄷ</strong></span>
       </div>
+      <div class="guide-divider"></div>
+      <div class="guide-item-row">
+        <span class="guide-icon">👑</span>
+        <span class="guide-text">마지막 5초엔 <strong>대왕 보스</strong> 등장! 연타!</span>
+      </div>
     </div>
     <button class="start-btn" onclick="startCountdownFromGuide()">준비 완료! 💗</button>
   </div>
@@ -799,9 +946,16 @@
   <div class="heart-intro">💖</div>
 </div>
 
+<!-- 스테이지 전환 -->
+<div class="stage-overlay" id="stageOverlay">
+  <div class="stage-announce" id="stageAnnounce">🎮 2단계!</div>
+  <div class="stage-sub" id="stageSub"></div>
+</div>
+
 <!-- 게임 화면 -->
 <div class="screen hidden" id="gameScreen">
   <div class="game-hud">
+    <div class="hud-badge stage-badge">🎮 <span id="stageVal">1</span>단계</div>
     <div class="hud-badge">🐹 <span id="nickname">플레이어</span></div>
     <div class="hud-badge">⏱️ <span class="timer-val" id="timerVal">30</span>초</div>
     <div class="hud-badge">💗 <span id="scoreVal">0</span>마리</div>
@@ -813,9 +967,12 @@
 <!-- 결과 화면 -->
 <div class="screen hidden" id="resultScreen">
   <div class="result-card">
+    <div class="result-header-tag">🐹 잡아라 햄수터</div>
     <span class="result-emoji" id="resultEmoji">🐹🎉</span>
     <h2 id="resultTitle">게임 종료!</h2>
-    <div class="result-stats" id="resultStats"></div>
+    <div class="result-player-name" id="resultPlayer"></div>
+    <div class="result-score-big" id="resultScoreBig">0</div>
+    <div class="result-score-label">마리 잡았어요!</div>
     <div class="rank-badge" id="rankBadge">
       <span class="rank-icon" id="rankIcon">🥉</span>
       <span class="rank-label" id="rankLabel">견습생</span>
@@ -829,6 +986,7 @@
       </div>
     </div>
     <div class="result-rank" id="resultRank"></div>
+    <div class="result-footer">made.Yujin* 💗</div>
     <div class="music-toggle-row">
       <button class="music-btn" id="musicToggleResult" onclick="toggleMusic()">🔊 음악</button>
     </div>
@@ -858,10 +1016,14 @@ function createBgEmojis() {
 
 let playerName = '';
 let score = 0;
+let totalScore = 0;
 let timeLeft = 30;
 let gameTimer = null;
 let spawnTimer = null;
+let bossTimer = null;
 let gameRunning = false;
+let currentStage = 1;
+const STAGE_CLEAR_SCORE = [0, 10, 15, 0]; // 1단계:10, 2단계:15, 3단계:클리어조건없음(최종)
 
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
@@ -925,32 +1087,105 @@ function startCountdownFromGuide() {
 
 function startGame() {
   score = 0;
+  totalScore = 0;
+  currentStage = 1;
   timeLeft = 30;
   gameRunning = true;
   document.getElementById('scoreVal').textContent = '0';
   document.getElementById('timerVal').textContent = '30';
   document.getElementById('timerVal').classList.remove('urgent');
+  document.getElementById('stageVal').textContent = '1';
   document.getElementById('gameArea').innerHTML = '';
   showScreen('gameScreen');
 
-  // Start music
   if (!musicPlaying) startMusic();
-
-  // Reset rank bar for next result
   document.getElementById('rankBarFill').style.width = '0%';
 
+  startStageTimer();
+  startSpawning();
+}
+
+function startStageTimer() {
+  clearInterval(gameTimer);
   gameTimer = setInterval(() => {
     timeLeft--;
     const t = document.getElementById('timerVal');
     t.textContent = timeLeft;
     if (timeLeft <= 10) t.classList.add('urgent');
-    if (timeLeft <= 0) endGame();
-  }, 1000);
 
+    // 마지막 5초: 대왕 햄스터 보스 등장!
+    if (timeLeft === 5 && currentStage >= 2) {
+      spawnBoss();
+    }
+
+    if (timeLeft <= 0) {
+      clearInterval(gameTimer);
+      // 스테이지 클리어 체크
+      if (currentStage < 3 && score >= STAGE_CLEAR_SCORE[currentStage]) {
+        totalScore += score;
+        advanceStage();
+      } else {
+        totalScore += score;
+        endGame();
+      }
+    }
+  }, 1000);
+}
+
+function startSpawning() {
+  clearInterval(spawnTimer);
+  // 단계별 스폰 속도: 1단계 800ms, 2단계 600ms, 3단계 450ms
+  const spawnRate = currentStage === 1 ? 800 : currentStage === 2 ? 600 : 450;
   spawnHamster();
   spawnTimer = setInterval(() => {
     if (gameRunning) spawnHamster();
-  }, 800);
+  }, spawnRate);
+}
+
+function advanceStage() {
+  gameRunning = false;
+  clearInterval(spawnTimer);
+  clearInterval(bossTimer);
+
+  // 남은 햄스터 제거
+  document.querySelectorAll('.hamster-target').forEach(h => {
+    h.style.transition = 'opacity 0.3s';
+    h.style.opacity = '0';
+    setTimeout(() => h.remove(), 300);
+  });
+
+  currentStage++;
+  const overlay = document.getElementById('stageOverlay');
+  const announce = document.getElementById('stageAnnounce');
+  const sub = document.getElementById('stageSub');
+
+  if (currentStage === 2) {
+    announce.textContent = '⭐ 2단계!';
+    sub.textContent = '햄스터가 빨라졌어요! 보스가 나타날지도...?';
+  } else {
+    announce.textContent = '🔥 3단계!';
+    sub.textContent = '거대 강아지 출현! 대왕 보스도 온다!';
+  }
+
+  announce.style.animation = 'none';
+  void announce.offsetHeight;
+  announce.style.animation = 'countPop 0.6s ease-out';
+
+  overlay.classList.add('show');
+
+  setTimeout(() => {
+    overlay.classList.remove('show');
+    score = 0;
+    timeLeft = 30;
+    gameRunning = true;
+    document.getElementById('scoreVal').textContent = '0';
+    document.getElementById('timerVal').textContent = '30';
+    document.getElementById('timerVal').classList.remove('urgent');
+    document.getElementById('stageVal').textContent = currentStage;
+    document.getElementById('gameArea').innerHTML = '';
+    startStageTimer();
+    startSpawning();
+  }, 2000);
 }
 
 function spawnHamster() {
@@ -958,36 +1193,43 @@ function spawnHamster() {
   const h = document.createElement('div');
   h.className = 'hamster-target';
 
-  // 타입 결정: 일반 햄스터(70%), 치즈(10%), 강아지(10%), 하트햄스터(10%)
+  // 단계별 확률 조정
+  const dogChance = currentStage === 1 ? 0.08 : currentStage === 2 ? 0.12 : 0.18;
+  const heartChance = 0.08;
+  const cheeseChance = 0.10;
+
   const roll = Math.random();
-  let type, displayContent, pts;
+  let type;
 
-  if (roll < 0.10) {
-    // 🐶 강아지 - 잡으면 점수 리셋!
+  if (roll < dogChance) {
     type = 'dog';
-    displayContent = '🐶';
     h.classList.add('dog-target');
-  } else if (roll < 0.20) {
-    // 💖🐹 하트 햄스터 - +10점!
-    type = 'heart';
-    displayContent = '🐹';
-    h.classList.add('heart-target');
-  } else if (roll < 0.30) {
-    type = 'cheese';
-    displayContent = '🧀';
-  } else {
-    type = 'normal';
-    displayContent = '🐹';
-  }
+    h.textContent = '🐶';
 
-  // 하트 햄스터는 하트 래퍼로 감싸기
-  if (type === 'heart') {
+    // 3단계: 거대 강아지!
+    if (currentStage === 3 && Math.random() < 0.4) {
+      h.classList.add('giant-dog');
+      const giantSize = 6 + Math.random() * 3;
+      h.style.fontSize = giantSize + 'rem';
+    } else {
+      const size = 2.5 + Math.random() * 1.2;
+      h.style.fontSize = size + 'rem';
+    }
+  } else if (roll < dogChance + heartChance) {
+    type = 'heart';
+    h.classList.add('heart-target');
     h.innerHTML = '<span class="heart-wrap">💖</span><span class="heart-hamster-inner">🐹</span>';
     const size = 3.5 + Math.random() * 1;
     h.style.fontSize = size + 'rem';
+  } else if (roll < dogChance + heartChance + cheeseChance) {
+    type = 'cheese';
+    h.textContent = '🧀';
+    const size = 2.2 + Math.random() * 1.8;
+    h.style.fontSize = size + 'rem';
   } else {
-    h.textContent = displayContent;
-    const size = type === 'dog' ? (2.5 + Math.random() * 1.2) : (2.2 + Math.random() * 1.8);
+    type = 'normal';
+    h.textContent = '🐹';
+    const size = 2.2 + Math.random() * 1.8;
     h.style.fontSize = size + 'rem';
   }
 
@@ -998,12 +1240,15 @@ function spawnHamster() {
   h.style.left = x + 'px';
   h.style.top = y + 'px';
 
-  // 강아지는 더 빠르게, 하트 햄스터도 빠르게
-  const speedMult = type === 'dog' ? 1.8 : type === 'heart' ? 2.0 : 1;
-  const sx = (Math.random() - 0.5) * 3 * speedMult;
-  const sy = (Math.random() - 0.5) * 2.5 * speedMult;
+  // 단계별 속도: 1단계 기본, 2단계 1.6배, 3단계 2.2배
+  const stageSpeed = currentStage === 1 ? 1 : currentStage === 2 ? 1.6 : 2.2;
+  const typeSpeed = type === 'dog' ? 1.5 : type === 'heart' ? 1.8 : 1;
+  const totalSpeed = stageSpeed * typeSpeed;
+
+  const sx = (Math.random() - 0.5) * 3 * totalSpeed;
+  const sy = (Math.random() - 0.5) * 2.5 * totalSpeed;
   const amp = 10 + Math.random() * 20;
-  const spd = 2 + Math.random() * 3;
+  const spd = (2 + Math.random() * 3) * (currentStage === 3 ? 1.5 : 1);
   let t0 = Date.now();
 
   function drift() {
@@ -1031,7 +1276,6 @@ function spawnHamster() {
     ef.style.top = (e.clientY - 10) + 'px';
 
     if (type === 'dog') {
-      // 강아지 잡으면 점수 리셋 + 화면 햄스터 도망!
       const lostScore = score;
       score = 0;
       document.getElementById('scoreVal').textContent = score;
@@ -1041,7 +1285,6 @@ function spawnHamster() {
       h.textContent = '😈';
       playDogSound();
 
-      // 화면의 모든 햄스터 도망 효과
       document.querySelectorAll('.hamster-target:not(.caught)').forEach(target => {
         if (target !== h) {
           target.classList.add('flee');
@@ -1049,7 +1292,6 @@ function spawnHamster() {
         }
       });
 
-      // 화면 흔들기
       document.getElementById('gameScreen').classList.add('screen-shake');
       setTimeout(() => document.getElementById('gameScreen').classList.remove('screen-shake'), 500);
 
@@ -1073,7 +1315,6 @@ function spawnHamster() {
       score += 1;
       document.getElementById('scoreVal').textContent = score;
       ef.textContent = '💗 +1!';
-      // 헉! 표정으로 변경
       h.textContent = '🙀';
       playCatchSound();
     }
@@ -1095,10 +1336,102 @@ function spawnHamster() {
   area.appendChild(h);
 }
 
+// ===== 대왕 햄스터 보스 =====
+function spawnBoss() {
+  const area = document.getElementById('gameArea');
+  const boss = document.createElement('div');
+  boss.className = 'hamster-target boss-target';
+  boss.style.fontSize = '7rem';
+  boss.textContent = '🐹';
+
+  // HP 바
+  const hpBar = document.createElement('div');
+  hpBar.className = 'boss-hp-bar';
+  const hpFill = document.createElement('div');
+  hpFill.className = 'boss-hp-fill';
+  hpFill.style.width = '100%';
+  hpBar.appendChild(hpFill);
+  boss.appendChild(hpBar);
+
+  let bossHp = currentStage === 2 ? 8 : 15;
+  const maxHp = bossHp;
+  let bossScore = 0;
+
+  // 화면 중앙 근처에 등장
+  const cx = window.innerWidth / 2 - 50;
+  const cy = window.innerHeight / 2 - 50;
+  let x = cx, y = cy;
+  boss.style.left = x + 'px';
+  boss.style.top = y + 'px';
+
+  let t0 = Date.now();
+  const bossSpeed = currentStage === 3 ? 2.5 : 1.5;
+
+  function bossDrift() {
+    if (!gameRunning || bossHp <= 0) return;
+    const t = (Date.now() - t0) / 1000;
+    const nx = cx + Math.sin(t * bossSpeed) * 120;
+    const ny = cy + Math.cos(t * bossSpeed * 0.8) * 80;
+    boss.style.left = nx + 'px';
+    boss.style.top = ny + 'px';
+    requestAnimationFrame(bossDrift);
+  }
+  bossDrift();
+
+  boss.addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    if (bossHp <= 0 || !gameRunning) return;
+
+    bossHp--;
+    bossScore++;
+    score++;
+    document.getElementById('scoreVal').textContent = score;
+
+    // HP 바 업데이트
+    hpFill.style.width = (bossHp / maxHp * 100) + '%';
+
+    // 연타 이펙트
+    const ef = document.createElement('div');
+    ef.className = 'catch-effect';
+    ef.textContent = '💥 +1!';
+    ef.style.left = (e.clientX + (Math.random()-0.5)*30) + 'px';
+    ef.style.top = (e.clientY - 10 + (Math.random()-0.5)*20) + 'px';
+    ef.style.fontSize = '1.2rem';
+    document.body.appendChild(ef);
+    setTimeout(() => ef.remove(), 600);
+
+    playCatchSound();
+
+    // 보스 피격 흔들림
+    boss.style.transform = `scale(${0.9 + Math.random()*0.15}) rotate(${(Math.random()-0.5)*15}deg)`;
+    setTimeout(() => { boss.style.transform = ''; }, 100);
+
+    if (bossHp <= 0) {
+      // 보스 처치!
+      boss.textContent = '😵‍💫';
+      boss.classList.add('caught');
+      const bigEf = document.createElement('div');
+      bigEf.className = 'catch-effect';
+      bigEf.textContent = '👑 보스 처치! +' + bossScore + '!';
+      bigEf.style.left = e.clientX + 'px';
+      bigEf.style.top = (e.clientY - 20) + 'px';
+      bigEf.style.fontSize = '2rem';
+      bigEf.style.color = '#FFD700';
+      document.body.appendChild(bigEf);
+      setTimeout(() => bigEf.remove(), 1200);
+      setTimeout(() => boss.remove(), 500);
+      playHeartSound();
+    }
+  });
+
+  area.appendChild(boss);
+}
+
 function endGame() {
   gameRunning = false;
   clearInterval(gameTimer);
   clearInterval(spawnTimer);
+  clearInterval(bossTimer);
   document.querySelectorAll('.hamster-target').forEach(h => {
     h.style.transition = 'opacity 0.3s';
     h.style.opacity = '0';
@@ -1108,46 +1441,47 @@ function endGame() {
 }
 
 function showResult() {
+  const finalScore = totalScore;
   let emoji, title, rank, rankIcon, rankLabel, rankPercent;
 
-  if (score >= 35) {
+  if (finalScore >= 60) {
     emoji = '🐹👑'; title = '햄수터 마스터!';
     rank = '🌟 전설의 햄스터 헌터 🌟'; rankIcon = '👑'; rankLabel = '전설'; rankPercent = 100;
-  } else if (score >= 25) {
+  } else if (finalScore >= 45) {
     emoji = '🐹🔥'; title = '불꽃 헌터!';
     rank = '엘리트 햄스터 헌터!'; rankIcon = '🔥'; rankLabel = '엘리트'; rankPercent = 80;
-  } else if (score >= 18) {
+  } else if (finalScore >= 30) {
     emoji = '🐹🎉'; title = '대단해요!';
     rank = '프로 햄스터 헌터!'; rankIcon = '⭐'; rankLabel = '프로'; rankPercent = 60;
-  } else if (score >= 10) {
+  } else if (finalScore >= 15) {
     emoji = '🐹✨'; title = '잘했어요!';
     rank = '햄스터 헌터 견습생!'; rankIcon = '🐹'; rankLabel = '견습생'; rankPercent = 40;
-  } else if (score >= 5) {
+  } else if (finalScore >= 5) {
     emoji = '🐹💦'; title = '아쉬워요!';
     rank = '햄스터가 너무 빨라요...'; rankIcon = '🐣'; rankLabel = '초보'; rankPercent = 20;
   } else {
     emoji = '🐹💤'; title = '다시 도전!';
-    rank = '햄스터가 도망갔어요!'; rankIcon = '🐣'; rankLabel = '초보'; rankPercent = Math.max(5, score * 4);
+    rank = '햄스터가 도망갔어요!'; rankIcon = '🐣'; rankLabel = '초보'; rankPercent = Math.max(5, finalScore * 3);
   }
+
+  const stageText = currentStage === 3 ? '3단계 클리어!' : currentStage + '단계에서 탈락';
 
   document.getElementById('resultEmoji').textContent = emoji;
   document.getElementById('resultTitle').textContent = title;
-  document.getElementById('resultStats').innerHTML = `${playerName}님의 기록<br>🐹 ${score}마리 잡았어요!`;
+  document.getElementById('resultPlayer').textContent = playerName + '님 · ' + stageText;
+  document.getElementById('resultScoreBig').textContent = finalScore;
   document.getElementById('resultRank').textContent = rank;
   document.getElementById('rankIcon').textContent = rankIcon;
   document.getElementById('rankLabel').textContent = rankLabel;
 
   showScreen('resultScreen');
 
-  // Animate rank bar
   setTimeout(() => {
     document.getElementById('rankBarFill').style.width = rankPercent + '%';
   }, 100);
 
-  if (score >= 10) launchConfetti();
-
-  // Play result jingle
-  playResultJingle(score >= 18);
+  if (finalScore >= 15) launchConfetti();
+  playResultJingle(finalScore >= 30);
 }
 
 // ===== 음악 시스템 (Tone.js) =====
