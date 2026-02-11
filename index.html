@@ -89,6 +89,106 @@
     opacity: 0.7;
   }
 
+  .game-guide {
+    background: rgba(255,182,217,0.12);
+    border: 2.5px dashed var(--secondary);
+    border-radius: 18px;
+    padding: 14px 18px;
+    margin: 16px 0 18px;
+    text-align: left;
+  }
+
+  .guide-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--dark);
+    text-align: center;
+    margin-bottom: 10px;
+  }
+
+  .guide-item {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--dark);
+    padding: 4px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    line-height: 1.4;
+  }
+
+  .guide-emoji {
+    flex-shrink: 0;
+    font-size: 1.1rem;
+  }
+
+  .guide-item strong {
+    color: var(--accent);
+  }
+
+  .guide-card {
+    background: white;
+    border: 5px solid var(--dark);
+    border-radius: 40px;
+    padding: 45px 38px 40px;
+    text-align: center;
+    box-shadow: 0 10px 0 var(--dark), 0 20px 60px rgba(0,0,0,0.15);
+    max-width: 400px;
+    width: 88vw;
+    animation: titlePop 0.5s cubic-bezier(0.34,1.56,0.64,1);
+  }
+
+  .guide-card-title {
+    font-family: 'Gaegu', cursive;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--dark);
+    margin-bottom: 20px;
+  }
+
+  .guide-items {
+    background: rgba(255,182,217,0.1);
+    border: 2.5px dashed var(--secondary);
+    border-radius: 20px;
+    padding: 18px 20px;
+    text-align: left;
+  }
+
+  .guide-item-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+  }
+
+  .guide-icon {
+    font-size: 1.6rem;
+    flex-shrink: 0;
+  }
+
+  .guide-text {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--dark);
+    line-height: 1.4;
+  }
+
+  .guide-text strong {
+    color: var(--accent);
+  }
+
+  .guide-item-row.warn .guide-text {
+    color: #D32F2F;
+  }
+
+  .guide-divider {
+    height: 1.5px;
+    background: var(--secondary);
+    opacity: 0.35;
+    margin: 2px 0;
+    border-radius: 10px;
+  }
+
   .screen {
     position: fixed;
     inset: 0;
@@ -657,6 +757,7 @@
     <span class="intro-mascot">🐹</span>
     <div class="game-title">잡아라<br>햄수터 🐹</div>
     <div class="made-by">made.Yujin*</div>
+
     <p class="label" style="margin-top:18px;">닉네임을 입력하세요!</p>
     <input class="nickname-input" id="nicknameInput" type="text" placeholder="닉네임" maxlength="10" autofocus />
     <br>
@@ -667,6 +768,30 @@
 <!-- 카운트다운 -->
 <div class="countdown-overlay" id="countdownOverlay">
   <div class="countdown-num" id="countdownNum">3</div>
+</div>
+
+<!-- 게임 가이드 화면 -->
+<div class="screen hidden" id="guideScreen">
+  <div class="guide-card">
+    <div class="guide-card-title">📖 게임 가이드</div>
+    <div class="guide-items">
+      <div class="guide-item-row">
+        <span class="guide-icon">🐹🧀</span>
+        <span class="guide-text">햄스터와 치즈를 많이 잡을수록 높은 점수!</span>
+      </div>
+      <div class="guide-divider"></div>
+      <div class="guide-item-row">
+        <span class="guide-icon">💖🐹</span>
+        <span class="guide-text">하트 안의 햄스터는 <strong>+10마리!</strong></span>
+      </div>
+      <div class="guide-divider"></div>
+      <div class="guide-item-row warn">
+        <span class="guide-icon">🐶</span>
+        <span class="guide-text">강아지를 잡으면 햄스터가 다 도망가요 <strong>ㄷ.ㄷ</strong></span>
+      </div>
+    </div>
+    <button class="start-btn" onclick="startCountdownFromGuide()">준비 완료! 💗</button>
+  </div>
 </div>
 
 <!-- GO! 후 하트 애니메이션 -->
@@ -753,6 +878,12 @@ function startCountdown() {
   const input = document.getElementById('nicknameInput').value.trim();
   playerName = input || '햄찌러버';
   document.getElementById('nickname').textContent = playerName;
+  // 가이드 화면으로 이동
+  showScreen('guideScreen');
+}
+
+function startCountdownFromGuide() {
+  showScreen('introScreen'); // 일단 숨기기용
 
   const overlay = document.getElementById('countdownOverlay');
   const numEl = document.getElementById('countdownNum');
