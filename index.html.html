@@ -1,0 +1,1179 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🐹 잡아라 햄수터 게임</title>
+<link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+<style>
+  :root {
+    --bg: #FFF6F9;
+    --primary: #FF7EB3;
+    --secondary: #FFB6D9;
+    --accent: #FF4F9A;
+    --dark: #7A3B5E;
+    --success: #A8E06C;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    font-family: 'Gaegu', cursive;
+    min-height: 100vh;
+    overflow: hidden;
+    position: relative;
+    cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='36' height='36' style='font-size:28px'><text y='28'>💗</text></svg>") 14 14, auto;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(circle at 15% 20%, rgba(255,179,217,0.25) 0%, transparent 40%),
+      radial-gradient(circle at 85% 70%, rgba(255,126,179,0.12) 0%, transparent 40%),
+      radial-gradient(circle at 50% 90%, rgba(255,79,154,0.08) 0%, transparent 30%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .bg-emojis {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+
+  .bg-emoji {
+    position: absolute;
+    animation: floatBg 12s ease-in-out infinite;
+  }
+
+  @keyframes floatBg {
+    0%, 100% { transform: translateY(0) rotate(0deg) scale(1); }
+    25% { transform: translateY(-18px) rotate(90deg) scale(1.05); }
+    50% { transform: translateY(-30px) rotate(180deg) scale(1); }
+    75% { transform: translateY(-12px) rotate(270deg) scale(0.95); }
+  }
+
+  .game-title {
+    font-family: 'Gaegu', cursive;
+    font-weight: 700;
+    font-size: 3.5rem;
+    color: #fff;
+    -webkit-text-stroke: 3px var(--primary);
+    paint-order: stroke fill;
+    text-shadow:
+      0 0 8px rgba(255,126,179,0.4),
+      0 4px 0 rgba(255,126,179,0.25);
+    letter-spacing: 4px;
+    text-align: center;
+    animation: titlePop 0.6s cubic-bezier(0.34,1.56,0.64,1);
+    user-select: none;
+  }
+
+  @keyframes titlePop {
+    0% { transform: scale(0.3); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  .screen {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    transition: opacity 0.4s, transform 0.4s;
+  }
+
+  .screen.hidden {
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(0.95);
+  }
+
+  .intro-card {
+    background: white;
+    border: 5px solid var(--dark);
+    border-radius: 40px;
+    padding: 50px 45px 40px;
+    text-align: center;
+    box-shadow: 0 10px 0 var(--dark), 0 20px 60px rgba(0,0,0,0.15);
+    max-width: 400px;
+    width: 88vw;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* 귀여운 일러스트 배경 */
+  .intro-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at 12% 85%, rgba(255,182,217,0.35) 0%, transparent 28%),
+      radial-gradient(circle at 88% 80%, rgba(255,209,102,0.3) 0%, transparent 25%),
+      radial-gradient(circle at 50% 100%, rgba(255,126,179,0.15) 0%, transparent 40%),
+      radial-gradient(circle at 8% 15%, rgba(168,224,108,0.2) 0%, transparent 20%),
+      radial-gradient(circle at 92% 12%, rgba(255,182,217,0.25) 0%, transparent 22%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .intro-card > * { position: relative; z-index: 1; }
+
+  .intro-deco {
+    position: absolute;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.18;
+  }
+
+  .intro-deco-tl { top: 12px; left: 16px; font-size: 2rem; animation: decoFloat 4s ease-in-out infinite; }
+  .intro-deco-tr { top: 14px; right: 18px; font-size: 1.7rem; animation: decoFloat 5s ease-in-out infinite 0.5s; }
+  .intro-deco-bl { bottom: 14px; left: 20px; font-size: 1.8rem; animation: decoFloat 4.5s ease-in-out infinite 1s; }
+  .intro-deco-br { bottom: 12px; right: 16px; font-size: 2.1rem; animation: decoFloat 3.8s ease-in-out infinite 0.3s; }
+  .intro-deco-ml { top: 50%; left: 10px; font-size: 1.4rem; animation: decoFloat 5.5s ease-in-out infinite 1.5s; }
+  .intro-deco-mr { top: 45%; right: 12px; font-size: 1.5rem; animation: decoFloat 4.2s ease-in-out infinite 0.8s; }
+
+  @keyframes decoFloat {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-6px) rotate(8deg); }
+  }
+
+  /* 카드 하단 물결 장식 */
+  .intro-wave {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .intro-wave svg {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 60px;
+  }
+
+  /* 구름 장식 */
+  .intro-clouds {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 45px;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .cloud {
+    position: absolute;
+    background: rgba(255,246,249,0.7);
+    border-radius: 50px;
+    height: 20px;
+  }
+
+  .cloud-1 { width: 70px; top: 8px; left: 10%; animation: cloudDrift 8s ease-in-out infinite; }
+  .cloud-2 { width: 50px; top: 18px; right: 15%; animation: cloudDrift 10s ease-in-out infinite 2s; }
+  .cloud-3 { width: 40px; top: 5px; left: 55%; animation: cloudDrift 7s ease-in-out infinite 1s; }
+
+  @keyframes cloudDrift {
+    0%, 100% { transform: translateX(0); }
+    50% { transform: translateX(10px); }
+  }
+
+  .intro-mascot {
+    font-size: 5rem;
+    display: block;
+    margin-bottom: 10px;
+    animation: hamsterBounce 2s ease-in-out infinite;
+  }
+
+  @keyframes hamsterBounce {
+    0%, 100% { transform: translateY(0) rotate(-3deg); }
+    25% { transform: translateY(-10px) rotate(3deg); }
+    50% { transform: translateY(0) rotate(-3deg); }
+    75% { transform: translateY(-5px) rotate(1deg); }
+  }
+
+  .intro-card .label {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--dark);
+    margin-bottom: 16px;
+  }
+
+  .nickname-input {
+    font-family: 'Gaegu', cursive;
+    font-size: 1.5rem;
+    font-weight: 700;
+    padding: 14px 24px;
+    border: 4px solid var(--secondary);
+    border-radius: 50px;
+    outline: none;
+    text-align: center;
+    width: 100%;
+    max-width: 280px;
+    color: var(--dark);
+    background: var(--bg);
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+
+  .nickname-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px rgba(255,79,154,0.15);
+  }
+
+  .nickname-input::placeholder { color: var(--secondary); }
+
+  .start-btn, .retry-btn {
+    font-family: 'Gaegu', cursive;
+    font-size: 1.4rem;
+    font-weight: 700;
+    padding: 14px 40px;
+    border: 4px solid var(--dark);
+    border-radius: 50px;
+    cursor: pointer;
+    background: var(--accent);
+    color: white;
+    box-shadow: 0 6px 0 var(--dark);
+    position: relative;
+    top: 0;
+    transition: all 0.2s;
+    margin-top: 20px;
+  }
+
+  .start-btn:hover, .retry-btn:hover { top: -2px; box-shadow: 0 8px 0 var(--dark); }
+  .start-btn:active, .retry-btn:active { top: 4px; box-shadow: 0 2px 0 var(--dark); }
+
+  .game-hud {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 20;
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    padding: 16px 20px;
+    flex-wrap: wrap;
+  }
+
+  .hud-badge {
+    background: white;
+    border: 3px solid var(--secondary);
+    border-radius: 50px;
+    padding: 8px 20px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--dark);
+    box-shadow: 0 4px 0 rgba(255,182,217,0.5);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    user-select: none;
+  }
+
+  .timer-val { color: var(--accent); min-width: 32px; text-align: center; }
+
+  .timer-val.urgent {
+    color: #FF1744;
+    animation: pulse 0.5s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+  }
+
+  .game-area {
+    position: fixed;
+    inset: 0;
+    z-index: 5;
+    overflow: hidden;
+  }
+
+  .hamster-target {
+    position: absolute;
+    font-size: 3rem;
+    cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='44' height='44' style='font-size:36px'><text y='36'>💖</text></svg>") 18 18, pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15));
+    z-index: 6;
+  }
+
+  .hamster-target:active { transform: scale(0.7) !important; }
+
+  .hamster-target.caught {
+    animation: catchPop 0.4s ease-out forwards;
+    pointer-events: none;
+  }
+
+  /* 강아지 - 빨간 경고 글로우 */
+  .dog-target {
+    filter: drop-shadow(0 0 12px rgba(255,23,68,0.5)) drop-shadow(0 4px 8px rgba(0,0,0,0.15));
+    animation: dogWobble 0.6s ease-in-out infinite;
+  }
+
+  @keyframes dogWobble {
+    0%, 100% { transform: rotate(-5deg); }
+    50% { transform: rotate(5deg); }
+  }
+
+  /* 하트 햄스터 - 반짝반짝 */
+  .heart-target {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    filter: drop-shadow(0 0 16px rgba(255,79,154,0.6)) drop-shadow(0 4px 8px rgba(0,0,0,0.1));
+    animation: heartPulse 0.8s ease-in-out infinite;
+  }
+
+  .heart-wrap {
+    position: absolute;
+    font-size: 1.6em;
+    z-index: 0;
+    opacity: 0.85;
+    pointer-events: none;
+  }
+
+  .heart-hamster-inner {
+    position: relative;
+    z-index: 1;
+    font-size: 0.55em;
+    pointer-events: none;
+  }
+
+  @keyframes heartPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+  }
+
+  /* 도망 애니메이션 */
+  .hamster-target.flee {
+    animation: fleeAway 0.6s ease-in forwards !important;
+    pointer-events: none;
+  }
+
+  @keyframes fleeAway {
+    0% { transform: scale(1) rotate(0deg); opacity: 1; }
+    50% { transform: scale(0.8) rotate(20deg); opacity: 0.7; }
+    100% { transform: scale(0) translateY(-100px) rotate(360deg); opacity: 0; }
+  }
+
+  /* 화면 흔들기 */
+  .screen-shake {
+    animation: shake 0.5s ease-in-out;
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10% { transform: translateX(-8px) rotate(-1deg); }
+    30% { transform: translateX(8px) rotate(1deg); }
+    50% { transform: translateX(-6px); }
+    70% { transform: translateX(6px); }
+    90% { transform: translateX(-3px); }
+  }
+
+  @keyframes catchPop {
+    0% { transform: scale(1); opacity: 1; }
+    30% { transform: scale(1.5); opacity: 0.8; }
+    100% { transform: scale(0) rotate(360deg); opacity: 0; }
+  }
+
+  .catch-effect {
+    position: absolute;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--accent);
+    pointer-events: none;
+    z-index: 30;
+    animation: scoreFloat 0.8s ease-out forwards;
+    font-family: 'Gaegu', cursive;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.15);
+  }
+
+  @keyframes scoreFloat {
+    0% { transform: translateY(0) scale(1); opacity: 1; }
+    100% { transform: translateY(-60px) scale(1.3); opacity: 0; }
+  }
+
+  .result-card {
+    background: white;
+    border: 5px solid var(--dark);
+    border-radius: 30px;
+    padding: 45px 50px;
+    text-align: center;
+    box-shadow: 0 10px 0 var(--dark), 0 20px 60px rgba(0,0,0,0.15);
+    max-width: 420px;
+    width: 90vw;
+  }
+
+  .result-emoji {
+    font-size: 5rem;
+    display: block;
+    margin-bottom: 10px;
+    animation: hamsterBounce 1.5s ease-in-out infinite;
+  }
+
+  .result-card h2 {
+    font-family: 'Gaegu', cursive;
+    font-weight: 700;
+    font-size: 2.2rem;
+    color: var(--dark);
+    margin-bottom: 6px;
+  }
+
+  .result-stats {
+    font-size: 1.3rem;
+    color: var(--dark);
+    font-weight: 700;
+    margin: 14px 0 8px;
+    line-height: 1.8;
+  }
+
+  .result-rank {
+    font-size: 1.1rem;
+    color: var(--primary);
+    font-weight: 700;
+    margin-bottom: 14px;
+  }
+
+  .rank-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #FFF0F5, #FFD6E8);
+    border: 3px solid var(--accent);
+    border-radius: 50px;
+    padding: 10px 28px;
+    margin: 12px 0 16px;
+    animation: rankPop 0.6s cubic-bezier(0.34,1.56,0.64,1) 0.3s both;
+  }
+
+  @keyframes rankPop {
+    0% { transform: scale(0); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  .rank-icon { font-size: 2rem; }
+  .rank-label {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--dark);
+  }
+
+  .rank-bar-wrap {
+    width: 100%;
+    max-width: 300px;
+    margin: 0 auto 14px;
+    animation: rankPop 0.6s cubic-bezier(0.34,1.56,0.64,1) 0.5s both;
+  }
+
+  .rank-bar-bg {
+    width: 100%;
+    height: 14px;
+    background: #FFE0EE;
+    border-radius: 50px;
+    overflow: hidden;
+    border: 2px solid var(--secondary);
+  }
+
+  .rank-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--secondary), var(--accent), #FF1493);
+    border-radius: 50px;
+    width: 0%;
+    transition: width 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.6s;
+  }
+
+  .rank-tiers {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 2px 0;
+    font-size: 0.9rem;
+  }
+
+  .music-hud {
+    cursor: pointer;
+    transition: transform 0.2s;
+    padding: 8px 14px !important;
+  }
+  .music-hud:hover { transform: scale(1.1); }
+
+  .music-toggle-row {
+    margin: 10px 0 4px;
+  }
+
+  .music-btn {
+    font-family: 'Gaegu', cursive;
+    font-size: 1rem;
+    font-weight: 700;
+    padding: 6px 18px;
+    border: 3px solid var(--secondary);
+    border-radius: 50px;
+    background: var(--bg);
+    color: var(--dark);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .music-btn:hover { background: var(--secondary); color: white; }
+
+  .countdown-overlay {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    background: rgba(255,240,245,0.7);
+    backdrop-filter: blur(4px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+
+  .countdown-overlay.show { opacity: 1; pointer-events: all; }
+
+  .countdown-num {
+    font-family: 'Gaegu', cursive;
+    font-size: 8rem;
+    font-weight: 700;
+    color: var(--accent);
+    text-shadow: 0 6px 0 rgba(255,79,154,0.3);
+    animation: countPop 0.6s ease-out;
+  }
+
+  @keyframes countPop {
+    0% { transform: scale(2.5); opacity: 0; }
+    60% { transform: scale(0.9); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  .confetti-container {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 60;
+  }
+
+  .confetti-piece {
+    position: absolute;
+    top: -20px;
+    animation: confettiFall 3s ease-in forwards;
+  }
+
+  @keyframes confettiFall {
+    0% { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg) scale(0.3); opacity: 0; }
+  }
+
+  @media (max-width: 480px) {
+    .game-title { font-size: 2.6rem; -webkit-text-stroke: 2.5px var(--primary); }
+    .intro-card, .result-card { padding: 35px 28px; }
+    .hud-badge { padding: 6px 14px; font-size: 0.95rem; }
+    .hamster-target { font-size: 2.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-emojis" id="bgEmojis"></div>
+
+<!-- 닉네임 입력 화면 -->
+<div class="screen" id="introScreen">
+  <div class="intro-card">
+    <!-- 귀여운 일러스트 장식들 -->
+    <div class="intro-clouds">
+      <div class="cloud cloud-1"></div>
+      <div class="cloud cloud-2"></div>
+      <div class="cloud cloud-3"></div>
+    </div>
+    <span class="intro-deco intro-deco-tl">🌻</span>
+    <span class="intro-deco intro-deco-tr">🧀</span>
+    <span class="intro-deco intro-deco-bl">🐾</span>
+    <span class="intro-deco intro-deco-br">🌰</span>
+    <span class="intro-deco intro-deco-ml">💗</span>
+    <span class="intro-deco intro-deco-mr">✨</span>
+    <div class="intro-wave">
+      <svg viewBox="0 0 400 60" preserveAspectRatio="none">
+        <path d="M0,40 C80,10 160,55 240,30 C300,15 360,45 400,25 L400,60 L0,60Z" fill="rgba(255,182,217,0.18)"/>
+        <path d="M0,48 C100,25 200,55 300,35 C350,25 380,45 400,38 L400,60 L0,60Z" fill="rgba(255,126,179,0.1)"/>
+      </svg>
+    </div>
+
+    <span class="intro-mascot">🐹</span>
+    <div class="game-title">잡아라<br>햄수터 🐹</div>
+    <p class="label" style="margin-top:18px;">닉네임을 입력하세요!</p>
+    <input class="nickname-input" id="nicknameInput" type="text" placeholder="닉네임" maxlength="10" autofocus />
+    <br>
+    <button class="start-btn" onclick="startCountdown()">시작하기 🐹</button>
+  </div>
+</div>
+
+<!-- 카운트다운 -->
+<div class="countdown-overlay" id="countdownOverlay">
+  <div class="countdown-num" id="countdownNum">3</div>
+</div>
+
+<!-- 게임 화면 -->
+<div class="screen hidden" id="gameScreen">
+  <div class="game-hud">
+    <div class="hud-badge">🐹 <span id="nickname">플레이어</span></div>
+    <div class="hud-badge">⏱️ <span class="timer-val" id="timerVal">30</span>초</div>
+    <div class="hud-badge">💗 <span id="scoreVal">0</span>마리</div>
+    <div class="hud-badge music-hud" onclick="toggleMusic()">🔊</div>
+  </div>
+  <div class="game-area" id="gameArea"></div>
+</div>
+
+<!-- 결과 화면 -->
+<div class="screen hidden" id="resultScreen">
+  <div class="result-card">
+    <span class="result-emoji" id="resultEmoji">🐹🎉</span>
+    <h2 id="resultTitle">게임 종료!</h2>
+    <div class="result-stats" id="resultStats"></div>
+    <div class="rank-badge" id="rankBadge">
+      <span class="rank-icon" id="rankIcon">🥉</span>
+      <span class="rank-label" id="rankLabel">견습생</span>
+    </div>
+    <div class="rank-bar-wrap">
+      <div class="rank-bar-bg">
+        <div class="rank-bar-fill" id="rankBarFill"></div>
+      </div>
+      <div class="rank-tiers">
+        <span>🐣</span><span>🐹</span><span>⭐</span><span>🔥</span><span>👑</span>
+      </div>
+    </div>
+    <div class="result-rank" id="resultRank"></div>
+    <div class="music-toggle-row">
+      <button class="music-btn" id="musicToggleResult" onclick="toggleMusic()">🔊 음악</button>
+    </div>
+    <button class="retry-btn" onclick="goToIntro()">다시 하기 🔄</button>
+  </div>
+</div>
+
+<div class="confetti-container" id="confettiContainer"></div>
+
+<script>
+function createBgEmojis() {
+  const c = document.getElementById('bgEmojis');
+  const e = ['🐹','🧀','💕','🐹','🧀','🩷','🐹','🧀','💗','🐾','🌻','🥜','🌰','💖','🐹','🧀','🎀','💝'];
+  for (let i = 0; i < 120; i++) {
+    const el = document.createElement('div');
+    el.className = 'bg-emoji';
+    el.textContent = e[i % e.length];
+    el.style.fontSize = (14 + Math.random() * 28) + 'px';
+    el.style.left = (Math.random() * 100) + '%';
+    el.style.top = (Math.random() * 100) + '%';
+    el.style.opacity = (0.08 + Math.random() * 0.18);
+    el.style.animationDelay = (Math.random() * 12) + 's';
+    el.style.animationDuration = (6 + Math.random() * 12) + 's';
+    c.appendChild(el);
+  }
+}
+
+let playerName = '';
+let score = 0;
+let timeLeft = 30;
+let gameTimer = null;
+let spawnTimer = null;
+let gameRunning = false;
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+}
+
+function goToIntro() {
+  showScreen('introScreen');
+  document.getElementById('nicknameInput').value = playerName;
+  document.getElementById('nicknameInput').focus();
+}
+
+function startCountdown() {
+  const input = document.getElementById('nicknameInput').value.trim();
+  playerName = input || '햄찌러버';
+  document.getElementById('nickname').textContent = playerName;
+
+  const overlay = document.getElementById('countdownOverlay');
+  const numEl = document.getElementById('countdownNum');
+  overlay.classList.add('show');
+
+  let count = 3;
+  numEl.textContent = count;
+
+  const ci = setInterval(() => {
+    count--;
+    if (count > 0) {
+      numEl.textContent = count;
+      numEl.style.animation = 'none';
+      void numEl.offsetHeight;
+      numEl.style.animation = 'countPop 0.6s ease-out';
+    } else if (count === 0) {
+      numEl.textContent = 'GO!';
+      numEl.style.animation = 'none';
+      void numEl.offsetHeight;
+      numEl.style.animation = 'countPop 0.6s ease-out';
+    } else {
+      clearInterval(ci);
+      overlay.classList.remove('show');
+      startGame();
+    }
+  }, 800);
+}
+
+function startGame() {
+  score = 0;
+  timeLeft = 30;
+  gameRunning = true;
+  document.getElementById('scoreVal').textContent = '0';
+  document.getElementById('timerVal').textContent = '30';
+  document.getElementById('timerVal').classList.remove('urgent');
+  document.getElementById('gameArea').innerHTML = '';
+  showScreen('gameScreen');
+
+  // Start music
+  if (!musicPlaying) startMusic();
+
+  // Reset rank bar for next result
+  document.getElementById('rankBarFill').style.width = '0%';
+
+  gameTimer = setInterval(() => {
+    timeLeft--;
+    const t = document.getElementById('timerVal');
+    t.textContent = timeLeft;
+    if (timeLeft <= 10) t.classList.add('urgent');
+    if (timeLeft <= 0) endGame();
+  }, 1000);
+
+  spawnHamster();
+  spawnTimer = setInterval(() => {
+    if (gameRunning) spawnHamster();
+  }, 800);
+}
+
+function spawnHamster() {
+  const area = document.getElementById('gameArea');
+  const h = document.createElement('div');
+  h.className = 'hamster-target';
+
+  // 타입 결정: 일반 햄스터(70%), 치즈(10%), 강아지(10%), 하트햄스터(10%)
+  const roll = Math.random();
+  let type, displayContent, pts;
+
+  if (roll < 0.10) {
+    // 🐶 강아지 - 잡으면 점수 리셋!
+    type = 'dog';
+    displayContent = '🐶';
+    h.classList.add('dog-target');
+  } else if (roll < 0.20) {
+    // 💖🐹 하트 햄스터 - +10점!
+    type = 'heart';
+    displayContent = '🐹';
+    h.classList.add('heart-target');
+  } else if (roll < 0.30) {
+    type = 'cheese';
+    displayContent = '🧀';
+  } else {
+    type = 'normal';
+    displayContent = '🐹';
+  }
+
+  // 하트 햄스터는 하트 래퍼로 감싸기
+  if (type === 'heart') {
+    h.innerHTML = '<span class="heart-wrap">💖</span><span class="heart-hamster-inner">🐹</span>';
+    const size = 3.5 + Math.random() * 1;
+    h.style.fontSize = size + 'rem';
+  } else {
+    h.textContent = displayContent;
+    const size = type === 'dog' ? (2.5 + Math.random() * 1.2) : (2.2 + Math.random() * 1.8);
+    h.style.fontSize = size + 'rem';
+  }
+
+  const maxX = window.innerWidth - 60;
+  const maxY = window.innerHeight - 80;
+  let x = 30 + Math.random() * (maxX - 30);
+  let y = 80 + Math.random() * (maxY - 80);
+  h.style.left = x + 'px';
+  h.style.top = y + 'px';
+
+  // 강아지는 더 빠르게, 하트 햄스터도 빠르게
+  const speedMult = type === 'dog' ? 1.8 : type === 'heart' ? 2.0 : 1;
+  const sx = (Math.random() - 0.5) * 3 * speedMult;
+  const sy = (Math.random() - 0.5) * 2.5 * speedMult;
+  const amp = 10 + Math.random() * 20;
+  const spd = 2 + Math.random() * 3;
+  let t0 = Date.now();
+
+  function drift() {
+    if (!gameRunning || h.classList.contains('caught')) return;
+    const t = (Date.now() - t0) / 1000;
+    const nx = x + sx * t * 30 + Math.sin(t * spd) * amp;
+    const ny = y + sy * t * 25 + Math.cos(t * spd * 0.7) * amp * 0.6;
+    if (nx < -60 || nx > window.innerWidth + 60 || ny < -60 || ny > window.innerHeight + 60) {
+      h.remove(); return;
+    }
+    h.style.left = nx + 'px';
+    h.style.top = ny + 'px';
+    requestAnimationFrame(drift);
+  }
+  drift();
+
+  h.addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    if (h.classList.contains('caught') || !gameRunning) return;
+    h.classList.add('caught');
+
+    const ef = document.createElement('div');
+    ef.className = 'catch-effect';
+    ef.style.left = e.clientX + 'px';
+    ef.style.top = (e.clientY - 10) + 'px';
+
+    if (type === 'dog') {
+      // 강아지 잡으면 점수 리셋 + 화면 햄스터 도망!
+      const lostScore = score;
+      score = 0;
+      document.getElementById('scoreVal').textContent = score;
+      ef.textContent = '🐶 -' + lostScore + '! 도망!';
+      ef.style.color = '#FF1744';
+      ef.style.fontSize = '2rem';
+      playDogSound();
+
+      // 화면의 모든 햄스터 도망 효과
+      document.querySelectorAll('.hamster-target:not(.caught)').forEach(target => {
+        if (target !== h) {
+          target.classList.add('flee');
+          setTimeout(() => target.remove(), 600);
+        }
+      });
+
+      // 화면 흔들기
+      document.getElementById('gameScreen').classList.add('screen-shake');
+      setTimeout(() => document.getElementById('gameScreen').classList.remove('screen-shake'), 500);
+
+    } else if (type === 'heart') {
+      score += 10;
+      document.getElementById('scoreVal').textContent = score;
+      ef.textContent = '💖 +10!';
+      ef.style.color = '#FF4F9A';
+      ef.style.fontSize = '2.2rem';
+      playHeartSound();
+
+    } else if (type === 'cheese') {
+      score += 3;
+      document.getElementById('scoreVal').textContent = score;
+      ef.textContent = '🧀 +3!';
+      playCatchSound();
+
+    } else {
+      score += 1;
+      document.getElementById('scoreVal').textContent = score;
+      ef.textContent = '💗 +1!';
+      playCatchSound();
+    }
+
+    document.body.appendChild(ef);
+    setTimeout(() => ef.remove(), 900);
+    setTimeout(() => h.remove(), 400);
+  });
+
+  const life = type === 'heart' ? (2000 + Math.random() * 1500) : (3000 + Math.random() * 3000);
+  setTimeout(() => {
+    if (!h.classList.contains('caught')) {
+      h.style.transition = 'opacity 0.5s';
+      h.style.opacity = '0';
+      setTimeout(() => h.remove(), 500);
+    }
+  }, life);
+
+  area.appendChild(h);
+}
+
+function endGame() {
+  gameRunning = false;
+  clearInterval(gameTimer);
+  clearInterval(spawnTimer);
+  document.querySelectorAll('.hamster-target').forEach(h => {
+    h.style.transition = 'opacity 0.3s';
+    h.style.opacity = '0';
+    setTimeout(() => h.remove(), 300);
+  });
+  setTimeout(showResult, 600);
+}
+
+function showResult() {
+  let emoji, title, rank, rankIcon, rankLabel, rankPercent;
+
+  if (score >= 35) {
+    emoji = '🐹👑'; title = '햄수터 마스터!';
+    rank = '🌟 전설의 햄스터 헌터 🌟'; rankIcon = '👑'; rankLabel = '전설'; rankPercent = 100;
+  } else if (score >= 25) {
+    emoji = '🐹🔥'; title = '불꽃 헌터!';
+    rank = '엘리트 햄스터 헌터!'; rankIcon = '🔥'; rankLabel = '엘리트'; rankPercent = 80;
+  } else if (score >= 18) {
+    emoji = '🐹🎉'; title = '대단해요!';
+    rank = '프로 햄스터 헌터!'; rankIcon = '⭐'; rankLabel = '프로'; rankPercent = 60;
+  } else if (score >= 10) {
+    emoji = '🐹✨'; title = '잘했어요!';
+    rank = '햄스터 헌터 견습생!'; rankIcon = '🐹'; rankLabel = '견습생'; rankPercent = 40;
+  } else if (score >= 5) {
+    emoji = '🐹💦'; title = '아쉬워요!';
+    rank = '햄스터가 너무 빨라요...'; rankIcon = '🐣'; rankLabel = '초보'; rankPercent = 20;
+  } else {
+    emoji = '🐹💤'; title = '다시 도전!';
+    rank = '햄스터가 도망갔어요!'; rankIcon = '🐣'; rankLabel = '초보'; rankPercent = Math.max(5, score * 4);
+  }
+
+  document.getElementById('resultEmoji').textContent = emoji;
+  document.getElementById('resultTitle').textContent = title;
+  document.getElementById('resultStats').innerHTML = `${playerName}님의 기록<br>🐹 ${score}마리 잡았어요!`;
+  document.getElementById('resultRank').textContent = rank;
+  document.getElementById('rankIcon').textContent = rankIcon;
+  document.getElementById('rankLabel').textContent = rankLabel;
+
+  showScreen('resultScreen');
+
+  // Animate rank bar
+  setTimeout(() => {
+    document.getElementById('rankBarFill').style.width = rankPercent + '%';
+  }, 100);
+
+  if (score >= 10) launchConfetti();
+
+  // Play result jingle
+  playResultJingle(score >= 18);
+}
+
+// ===== 음악 시스템 (Tone.js) =====
+let musicPlaying = false;
+let bgmLoop = null;
+let bgmParts = [];
+
+function initMusic() {
+  if (bgmLoop) return;
+
+  // 귀여운 멜로디 신디사이저
+  const synth = new Tone.PolySynth(Tone.Synth, {
+    oscillator: { type: 'triangle' },
+    envelope: { attack: 0.02, decay: 0.3, sustain: 0.2, release: 0.5 },
+    volume: -14
+  }).toDestination();
+
+  // 베이스
+  const bass = new Tone.Synth({
+    oscillator: { type: 'sine' },
+    envelope: { attack: 0.05, decay: 0.3, sustain: 0.4, release: 0.3 },
+    volume: -20
+  }).toDestination();
+
+  // 귀여운 벨 소리
+  const bell = new Tone.Synth({
+    oscillator: { type: 'sine' },
+    envelope: { attack: 0.01, decay: 0.5, sustain: 0, release: 0.3 },
+    volume: -18
+  }).toDestination();
+
+  // 귀여운 멜로디 패턴
+  const melodyNotes = [
+    { time: '0:0', note: 'E5', dur: '8n' },
+    { time: '0:0:2', note: 'G5', dur: '8n' },
+    { time: '0:1', note: 'A5', dur: '8n' },
+    { time: '0:1:2', note: 'G5', dur: '8n' },
+    { time: '0:2', note: 'E5', dur: '4n' },
+    { time: '0:3', note: 'D5', dur: '8n' },
+    { time: '0:3:2', note: 'E5', dur: '8n' },
+    { time: '1:0', note: 'G5', dur: '8n' },
+    { time: '1:0:2', note: 'A5', dur: '8n' },
+    { time: '1:1', note: 'B5', dur: '8n' },
+    { time: '1:1:2', note: 'A5', dur: '8n' },
+    { time: '1:2', note: 'G5', dur: '4n' },
+    { time: '1:3', note: 'E5', dur: '4n' },
+    { time: '2:0', note: 'C5', dur: '8n' },
+    { time: '2:0:2', note: 'D5', dur: '8n' },
+    { time: '2:1', note: 'E5', dur: '8n' },
+    { time: '2:1:2', note: 'G5', dur: '8n' },
+    { time: '2:2', note: 'A5', dur: '4n' },
+    { time: '2:3', note: 'G5', dur: '8n' },
+    { time: '2:3:2', note: 'E5', dur: '8n' },
+    { time: '3:0', note: 'D5', dur: '4n' },
+    { time: '3:1', note: 'C5', dur: '4n' },
+    { time: '3:2', note: 'E5', dur: '4n' },
+    { time: '3:3', note: 'G5', dur: '4n' },
+  ];
+
+  const bassNotes = [
+    { time: '0:0', note: 'C3', dur: '2n' },
+    { time: '0:2', note: 'G3', dur: '2n' },
+    { time: '1:0', note: 'A2', dur: '2n' },
+    { time: '1:2', note: 'E3', dur: '2n' },
+    { time: '2:0', note: 'F3', dur: '2n' },
+    { time: '2:2', note: 'C3', dur: '2n' },
+    { time: '3:0', note: 'G3', dur: '2n' },
+    { time: '3:2', note: 'C3', dur: '2n' },
+  ];
+
+  const bellNotes = [
+    { time: '0:2', note: 'E6', dur: '16n' },
+    { time: '1:0', note: 'G6', dur: '16n' },
+    { time: '1:2', note: 'A6', dur: '16n' },
+    { time: '2:2', note: 'E6', dur: '16n' },
+    { time: '3:0', note: 'C6', dur: '16n' },
+    { time: '3:2', note: 'G6', dur: '16n' },
+  ];
+
+  const melodyPart = new Tone.Part((time, val) => {
+    synth.triggerAttackRelease(val.note, val.dur, time);
+  }, melodyNotes);
+  melodyPart.loop = true;
+  melodyPart.loopEnd = '4:0';
+
+  const bassPart = new Tone.Part((time, val) => {
+    bass.triggerAttackRelease(val.note, val.dur, time);
+  }, bassNotes);
+  bassPart.loop = true;
+  bassPart.loopEnd = '4:0';
+
+  const bellPart = new Tone.Part((time, val) => {
+    bell.triggerAttackRelease(val.note, val.dur, time);
+  }, bellNotes);
+  bellPart.loop = true;
+  bellPart.loopEnd = '4:0';
+
+  bgmParts = [melodyPart, bassPart, bellPart];
+  Tone.Transport.bpm.value = 130;
+  bgmLoop = true;
+}
+
+async function startMusic() {
+  await Tone.start();
+  initMusic();
+  bgmParts.forEach(p => p.start(0));
+  Tone.Transport.start();
+  musicPlaying = true;
+  updateMusicUI();
+}
+
+function stopMusic() {
+  Tone.Transport.stop();
+  bgmParts.forEach(p => p.stop());
+  musicPlaying = false;
+  updateMusicUI();
+}
+
+function toggleMusic() {
+  if (musicPlaying) stopMusic();
+  else startMusic();
+}
+
+function updateMusicUI() {
+  const icon = musicPlaying ? '🔊' : '🔇';
+  document.querySelector('.music-hud').textContent = icon;
+  const resultBtn = document.getElementById('musicToggleResult');
+  if (resultBtn) resultBtn.textContent = icon + ' 음악';
+}
+
+// 잡을 때 효과음
+function playCatchSound() {
+  if (!musicPlaying) return;
+  const s = new Tone.Synth({
+    oscillator: { type: 'sine' },
+    envelope: { attack: 0.01, decay: 0.15, sustain: 0, release: 0.1 },
+    volume: -10
+  }).toDestination();
+  const notes = ['E6','G6','A6','C7'];
+  s.triggerAttackRelease(notes[Math.floor(Math.random()*notes.length)], '16n');
+}
+
+// 결과 징글
+function playResultJingle(isGood) {
+  if (!musicPlaying) return;
+  const s = new Tone.PolySynth(Tone.Synth, {
+    oscillator: { type: 'triangle' },
+    envelope: { attack: 0.02, decay: 0.4, sustain: 0.1, release: 0.6 },
+    volume: -10
+  }).toDestination();
+
+  const now = Tone.now();
+  if (isGood) {
+    s.triggerAttackRelease('C5', '8n', now);
+    s.triggerAttackRelease('E5', '8n', now + 0.15);
+    s.triggerAttackRelease('G5', '8n', now + 0.3);
+    s.triggerAttackRelease(['C6','E6'], '4n', now + 0.5);
+  } else {
+    s.triggerAttackRelease('E5', '8n', now);
+    s.triggerAttackRelease('C5', '8n', now + 0.2);
+    s.triggerAttackRelease('A4', '4n', now + 0.4);
+  }
+}
+
+// 강아지 잡았을 때 효과음 (불길한 느낌)
+function playDogSound() {
+  try {
+    const s = new Tone.Synth({
+      oscillator: { type: 'sawtooth' },
+      envelope: { attack: 0.01, decay: 0.3, sustain: 0.1, release: 0.4 },
+      volume: -8
+    }).toDestination();
+    const now = Tone.now();
+    s.triggerAttackRelease('E3', '8n', now);
+    s.triggerAttackRelease('C3', '8n', now + 0.15);
+    s.triggerAttackRelease('A2', '4n', now + 0.3);
+  } catch(e) {}
+}
+
+// 하트 햄스터 잡았을 때 효과음 (화려한 느낌)
+function playHeartSound() {
+  try {
+    const s = new Tone.PolySynth(Tone.Synth, {
+      oscillator: { type: 'sine' },
+      envelope: { attack: 0.01, decay: 0.3, sustain: 0.1, release: 0.5 },
+      volume: -8
+    }).toDestination();
+    const now = Tone.now();
+    s.triggerAttackRelease('C5', '16n', now);
+    s.triggerAttackRelease('E5', '16n', now + 0.08);
+    s.triggerAttackRelease('G5', '16n', now + 0.16);
+    s.triggerAttackRelease('C6', '16n', now + 0.24);
+    s.triggerAttackRelease(['E6','G6'], '8n', now + 0.35);
+  } catch(e) {}
+}
+
+function launchConfetti() {
+  const c = document.getElementById('confettiContainer');
+  c.innerHTML = '';
+  const shapes = ['🌟','✨','💕','💖','🐹','🧀','🩷','🎀'];
+  for (let i = 0; i < 60; i++) {
+    const p = document.createElement('div');
+    p.className = 'confetti-piece';
+    p.textContent = shapes[Math.floor(Math.random() * shapes.length)];
+    p.style.left = Math.random() * 100 + '%';
+    p.style.animationDelay = (Math.random() * 1.5) + 's';
+    p.style.animationDuration = (2 + Math.random() * 2) + 's';
+    p.style.fontSize = (14 + Math.random() * 18) + 'px';
+    c.appendChild(p);
+  }
+  setTimeout(() => c.innerHTML = '', 4500);
+}
+
+document.getElementById('nicknameInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') startCountdown();
+});
+
+createBgEmojis();
+</script>
+</body>
+</html>
